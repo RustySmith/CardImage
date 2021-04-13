@@ -1,0 +1,37 @@
+Project to explore placing an image in a window for use with my solitaire project.
+This is an MFC SDI app with document/view support.
+
+I want to create a child to the View window, and put a card image in the child window.
+
+I had some trouble creating the child window. apparently, an OnPaint handler has to exist, even if it does nothing.
+The child window is drawn now.
+
+I added code to Card::OnPaint() to load a bitmapped image, but it is not loading.
+The image is in a .png file. Does it need to be a .bmp file? Nope.
+LoadBitmapW() returns 0.
+If I use the resource symbol value instead of the resource symbol name, LoadBitmapW() returns 1.
+Now I think SelectObject() is not working.
+I can use a pen to draw a line.
+
+I am trying to load the card bitmap in View. The dimensions of the card are smaller than the view. The bitmap loads, but I can't select it. SelectObject() returns 0.
+
+CDC::SelectObject info:
+An application can select a bitmap into memory device contexts only and into only one memory device context at a time.
+I guess I need to figure out how to use CDC::BitBlt() to copy from memory into the active device context.
+Done.
+
+Card::LoadBmp() successfully loads the bitmap image, but the Card window is smaller than the image, and only a portion of the card image shows in the window.
+I have no idea how to resize a .bmp resource to fit the window.
+The image disappears if I resize the View.
+
+To ENABLE the Disassembly window, under Tools > Options > Debugging, select Enable address-level debugging. To OPEN the Disassembly window during debugging, I RIGHT-CLICKED on the active window while halted at a breakpoint, and selected Go To Disassembly, A Disassembly tab opened.
+
+I moved some code from Card::LoadBitmap() to Card::OnPaint() to see if I could get the image to repaint.
+I am going to eliminate Card::LoadBitmap() and do everything in Card::OnPaint().
+Doesn't draw the card image.
+When I did CDC::BitBlt() before calling OnPaint(), it worked once. It seemed that subsequent calls to OnPaint() didn't work. Now, with everyting in OnPaint, it doesn't work at all.
+
+Should Card be derived from CView instead of CWnd? No. A CView is attached to a document, and has a frame.
+
+I got the card image to draw in View::OnDraw(). It can even change size as the window size changes. Now why doesn't it work in Card::OnPaint?
+I put the code in OnPaint(), and it is working.
